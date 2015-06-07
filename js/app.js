@@ -5,6 +5,7 @@ App.displayController = Ember.Object.create({
     currentValue: 0,
     displayValue: 0,
     newNumberStart: false,
+    hasDecimals: false,
     reset: function () {
         this.set('currentFunction', '');
         this.set('currentValue', 0);
@@ -45,7 +46,13 @@ App.displayController = Ember.Object.create({
     },
     updateNumber: function(num) {
         displayValue = this.get('displayValue');
-        if(displayValue == 0 || this.get('newNumberStart')) {
+        hasDecimals = this.get('hasDecimals');
+        if(hasDecimals) {
+            newDisplayValue = displayValue + '.' + num;
+            this.set('displayValue', newDisplayValue);
+            this.toggleProperty('hasDecimals');
+        }
+        else if(displayValue == 0 || this.get('newNumberStart')) {
             this.set('displayValue', num);
             this.set('newNumberStart', false)
         } else {
@@ -82,11 +89,16 @@ App.displayController = Ember.Object.create({
 
         this.set('displayValue', newValue);
         this.set('currentFunction', '');
+    },
+    addDot: function() {
+        if(this.get('displayValue') % 1 === 0) {
+            this.set('hasDecimals', true);
+        }
     }
 });
 
 App.RootView = Flame.View.extend({
-    layout: { width: 500, height: 300, centerX: 0, centerY: 0 },
+    layout: { width: 145, height: 200, left: 20, top: 20 },
     childViews: ['display','buttonReset','buttonDivide',
         'button7','button8','button9','buttonMultiply',
         'button4','button5','button6','buttonMinus',
@@ -215,7 +227,7 @@ App.RootView = Flame.View.extend({
         layout: { left: 40, top: 170, width: 30 },
         title: '.',
         action: function() {
-
+            App.displayController.addDot();
         }
     }),
 
